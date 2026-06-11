@@ -35,7 +35,7 @@ interface ExcelImporterProps {
   currentOfficersCount: number;
 }
 
-type ImportMode = 'sheet' | 'drive' | 'paste' | 'upload' | 'demo';
+type ImportMode = 'sheet' | 'drive' | 'paste' | 'upload';
 
 export function ExcelImporter({ onDataLoaded, currentCentersCount, currentOfficersCount }: ExcelImporterProps) {
   const [mode, setMode] = useState<ImportMode>('sheet');
@@ -427,15 +427,6 @@ export function ExcelImporter({ onDataLoaded, currentCentersCount, currentOffice
     }
   };
 
-  // 4. Trial / Mock data loader
-  const loadDemoData = () => {
-    onDataLoaded(mockCenters, mockOfficers);
-    setImportStatus({
-      type: 'success',
-      message: `डेमो डेटा लोड किया गया! (${mockCenters.length} केंद्र, ${mockOfficers.length} अधिकारी)। अब आप सीधे रेंडमाईजेशन ड्यूटी आवंटन टैब पर जा सकते हैं!`
-    });
-  };
-
   return (
     <div id="data-importer-panel" className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-5">
@@ -451,7 +442,7 @@ export function ExcelImporter({ onDataLoaded, currentCentersCount, currentOffice
       </div>
 
       {/* Tabs list */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200/50">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200/50">
         <button
           type="button"
           onClick={() => { setMode('sheet'); setImportStatus(null); }}
@@ -491,16 +482,6 @@ export function ExcelImporter({ onDataLoaded, currentCentersCount, currentOffice
         >
           <Upload className="h-3.5 w-3.5 text-slate-400" />
           फाइल अपलोड
-        </button>
-        <button
-          type="button"
-          onClick={() => { setMode('demo'); setImportStatus(null); }}
-          className={`px-4 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
-            mode === 'demo' ? 'bg-indigo-50 text-indigo-700 shadow-xs border border-indigo-100 font-semibold' : 'text-slate-500 hover:text-slate-800 hover:bg-white/40'
-          }`}
-        >
-          <FileSpreadsheet className="h-3.5 w-3.5 text-indigo-500" />
-          ट्रायल डेमो
         </button>
       </div>
 
@@ -790,27 +771,6 @@ export function ExcelImporter({ onDataLoaded, currentCentersCount, currentOffice
                 फाइल सेलेक्ट करें
               </button>
             </div>
-          </div>
-        )}
-
-        {mode === 'demo' && (
-          <div className="text-center p-8 space-y-4">
-            <div className="mx-auto w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-              <FileSpreadsheet className="h-6 w-6" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-bold text-slate-800">त्वरित टेस्टिंग के लिए ट्रायल डेमो लोड करें</h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
-                क्या आप रेंडम अलॉटमेंट की टेस्टिंग बिना किसी डेटा के तुरंत करना चाहते हैं? हमारे पहले से तैयार 7 परीक्षा केंद्रों और 25 अधिकारियों के डेमो डेटा का उपयोग करें।
-              </p>
-            </div>
-            <button
-              onClick={loadDemoData}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs rounded-xl shadow-sm transition inline-flex items-center gap-1.5 cursor-pointer"
-            >
-              हाँ, डेमो डेटा लोड करें (Load Trial Demo Data)
-              <ArrowRight className="h-4 w-4" />
-            </button>
           </div>
         )}
       </div>

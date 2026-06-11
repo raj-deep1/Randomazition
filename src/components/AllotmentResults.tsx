@@ -35,6 +35,8 @@ export function AllotmentResults({
   const [viewMode, setViewMode] = useState<ViewMode>('centers');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeOfficerSwap, setActiveOfficerSwap] = useState<string | null>(null);
+  const [reportTitle, setReportTitle] = useState('OFFICIAL RANDOMIZATION DUTY ALLOTMENT REPORT');
+  const [isPdfGenerating, setIsPdfGenerating] = useState(false);
 
   const assignedOfficers = officers.filter(o => o.assignedCenterCode !== null);
   const unassignedOfficers = officers.filter(o => o.assignedCenterCode === null);
@@ -55,52 +57,100 @@ export function AllotmentResults({
     exportToExcel(centers, officers);
   };
 
-  const handlePdfExport = () => {
-    exportToPDF(centers, officers);
+  const handlePdfExport = async () => {
+    setIsPdfGenerating(true);
+    try {
+      await exportToPDF(centers, officers, reportTitle);
+    } catch (err) {
+      console.error("PDF export failed:", err);
+    } finally {
+      setIsPdfGenerating(false);
+    }
   };
 
   return (
     <div id="allotment-results-panel" className="space-y-6">
       
       {/* Action Header bar */}
-      <div className="bg-indigo-950 text-white border-b-4 border-indigo-500 rounded-2xl p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
-            <ShieldCheck className="h-3 w-3 text-emerald-400" />
-            रैंडम अलॉटमेंट सफल (Random Allotment Complete)
+      <div className="bg-indigo-950 text-white border-b-4 border-indigo-500 rounded-2xl p-6 shadow-md flex flex-col gap-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+              <ShieldCheck className="h-3 w-3 text-emerald-400" />
+              रैंडम अलॉटमेंट सफल (Random Allotment Complete)
+            </div>
+            <h2 className="text-xl font-bold tracking-tight">ड्यूटी आबंटन परिणाम एवं रिपोर्ट (Duty Allotment Results)</h2>
+            <p className="text-xs text-indigo-200">सभी अधिकारियों की रैंडम ड्यूटी परीक्षा केंद्रों पर लगा दी गई है। आप नीचे रिपोर्ट देख सकते हैं तथा एक्सपोर्ट कर सकते हैं।</p>
           </div>
-          <h2 className="text-xl font-bold tracking-tight">ड्यूटी आबंटन परिणाम एवं रिपोर्ट (Duty Allotment Results)</h2>
-          <p className="text-xs text-indigo-200">सभी अधिकारियों की रैंडम ड्यूटी परीक्षा केंद्रों पर लगा दी गई है। आप नीचे रिपोर्ट देख सकते हैं तथा एक्सपोर्ट कर सकते हैं।</p>
+
+          <div className="flex flex-wrap gap-2.5 shrink-0">
+            <button
+              onClick={handlePdfExport}
+              disabled={isPdfGenerating}
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-800/80 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer disabled:cursor-not-allowed"
+            >
+              {isPdfGenerating ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0"></div>
+                  <span>तैयार हो रहा है...</span>
+                </>
+              ) : (
+                <>
+                  <FileDown className="h-4 w-4" />
+                  <span>पीडीएफ रिपोर्ट (Export PDF)</span>
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={handleExcelExport}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <FileDown className="h-4 w-4" />
+              एक्सेल रिपोर्ट (Export Excel)
+            </button>
+
+            <button
+              onClick={() => {
+                if (window.confirm("क्या आप सच में पूरा आवंटन रद्द करके फिर से खाली करना चाहते हैं?")) {
+                  onResetAllotment();
+                }
+              }}
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold text-xs rounded-xl flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              आवंटन रीसेट (Reset)
+            </button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2.5">
-          <button
-            onClick={handlePdfExport}
-            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
-          >
-            <FileDown className="h-4 w-4" />
-            पीडीएफ रिपोर्ट (Export PDF)
-          </button>
-          
-          <button
-            onClick={handleExcelExport}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
-          >
-            <FileDown className="h-4 w-4" />
-            एक्सेल रिपोर्ट (Export Excel)
-          </button>
-
-          <button
-            onClick={() => {
-              if (window.confirm("क्या आप सच में पूरा आवंटन रद्द करके फिर से खाली करना चाहते हैं?")) {
-                onResetAllotment();
-              }
-            }}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold text-xs rounded-xl flex items-center gap-1.5 transition cursor-pointer"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            आवंटन रीसेट (Reset)
-          </button>
+        {/* Manual report title editor section addition */}
+        <div className="bg-indigo-900/35 border border-indigo-500/20 rounded-xl p-4 space-y-2">
+          <label className="block text-[10px] sm:text-xs font-bold text-indigo-200 uppercase tracking-wider">
+            रिपोर्ट शीर्षक संपादित करें (Edit Report Heading Title in Exports):
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={reportTitle}
+              onChange={(e) => setReportTitle(e.target.value)}
+              placeholder="उदाहरण: OFFICIAL RANDOMIZATION DUTY ALLOTMENT REPORT"
+              className="flex-1 bg-indigo-950/90 border border-indigo-700/60 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/55 font-mono"
+            />
+            {reportTitle !== 'OFFICIAL RANDOMIZATION DUTY ALLOTMENT REPORT' && (
+              <button
+                type="button"
+                onClick={() => setReportTitle('OFFICIAL RANDOMIZATION DUTY ALLOTMENT REPORT')}
+                className="px-2.5 py-1 text-[10px] bg-indigo-800 hover:bg-indigo-700 rounded-lg text-indigo-100 font-medium cursor-pointer"
+                title="डिफ़ॉल्ट पर रीसेट करें"
+              >
+                रीसेट
+              </button>
+            )}
+          </div>
+          <p className="text-[10px] text-indigo-300 leading-relaxed">
+            * यहाँ जो भी आप मैन्युअल शीर्षक लिखेंगे, वह सीधे पी०डी०एफ० (PDF Export) के मुख्य बॉर्डर के मुख्य भाग में प्रिंट होगा।
+          </p>
         </div>
       </div>
 
