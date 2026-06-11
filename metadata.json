@@ -1,0 +1,6 @@
+{
+  "name": "Exam Center Officer Randomization Web App",
+  "description": "एक रेंडमाईजेशन वेब ऐप जिसमें परीक्षा केन्द्र का नाम रहता है और ऑफिसर को परीक्षा केन्द्र पर रेंडम ड्यूटी अलॉटमेंट किया जाता है, जिसमें गूगल स्प्रेडशीट इम्पोर्ट, एक्सेल तथा पीडीएफ रिपोर्ट डाउनलोड की सुविधा है।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
