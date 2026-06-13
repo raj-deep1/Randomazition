@@ -1,3 +1,7 @@
+
+git add package.json vite.config.ts
+git commit -m "Fix: added homepage and base path for gh-pages"
+git push origin main
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
